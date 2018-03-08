@@ -4,6 +4,8 @@
 
 These are basic steps to conduct imputation in the SSC dataset. Note, this can be modified and used for any dataset. 
 
+There are 3 SSC files. Steps 1 - 3 must be done for each of the three files seperately. 
+
 In general, the steps are as follows:
 
  1. LiftOver to hg19 from hg18 (all SSC files are in hg18)
@@ -62,6 +64,48 @@ The sexcheck essentially compares the X chromosome dosage to the reported sex.
  
 ```
 
+The next step is to create a file with problematic individuals and remove it from subsequent analysis. This is done in R.
+
+
+```R
+sex = read.delim("QC1checksex.sexcheck", sep = "")
+head(sex)
+sexproblem = subset(sex, STATUS == "PROBLEM")
+
+
+het = read.delim("QC1checkhet.het", sep = "")
+het$HET = (het$N.NM. - het$O.HOM.)/het$N.NM. #create heterozygosity stats
+
+mean = mean(het$HET)
+sd = sd(het$HET)
+het$Z = (het$HET - mean)/sd #create Z scores of heterozygosity
+
+hetoutlier = subset(het, abs(Z) > 3)
+
+het2 = hetoutlier[,c(1:2)]
+sex2 = sexproblem[,c(1:2)]
+failedsample = rbind(het2, sex2)
+
+write.table(failedsample, file = "failedsample1Mv3.txt", row.names = F, col.names = T, quote = F)
+```
+
+Next, we remove the failed samples.
+
+```bash
+
+./plink --bfile QC1output --remove failedsample1Mv3.txt --make-bed --out QC2output
+
+```
+
+./plink --bfile SSC_Omni2.5_binary_QC2 --filter-founders --make-bed --out SSC_Omni2.5_binary_QC2foundersonly
+
+./plink --bfile SSC_1Mv3_binary_QC2 --filter-founders --make-bed --out SSC_1Mv3_binary_QC2foundersonly
+
+./plink --bfile SSC_1Mv1_binary_QC2 --filter-founders --make-bed --out SSC_1Mv1_binary_QC2foundersonly
+
+./plink --bfile merged --bmerge  SSC_1Mv1_binary_QC1 --out merged2
+
+./plink --bfile merged2 --filter-founders --make-bed --out merged2founders 
 
 
 
@@ -78,6 +122,7 @@ The sexcheck essentially compares the X chromosome dosage to the reported sex.
 5. HapMap files: ftp://ftp.ncbi.nlm.nih.gov/hapmap/
 6. Imputation servers:https://imputationserver.sph.umich.edu/index.html and https://imputation.sanger.ac.uk/
 7. General information on imputation and QC: https://sites.google.com/a/broadinstitute.org/ricopili/
+8. A good primer on data QC for GWAS: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3025522/
 
 
 
