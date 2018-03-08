@@ -42,7 +42,7 @@ python2 liftOverPlink.py -m path/to/map/file -p path/to/ped/file -e path/to/lift
 
 The next chunk of code deals with removing 
  - individuals who have low genotyping specifically, if greater than 5% of the SNPs in each individual is missing (--mind 0.05)
- - families with mendelian errors > 5% (--me **0.05** 0.1)
+ - families with mendelian errors > 5% (--me **0.05** 0.1) (Families where more than 5% of the variants have evidence for non-mendelian transmission. Likely reflects genotyping errors. )
  - SNPs that significantly deviate from hardy-weinberg equilibrium (--hwe 0.000001)
  - SNPs that low genotype rate, specifically, if they are not genotyped in more than 10% of the individuals (--geno 0.01)
  - SNPs with mendelian errors > 10% (--me 0.5 **0.1**)
@@ -50,6 +50,8 @@ The next chunk of code deals with removing
 We take the ped/map file, run these commands, and then write the results out as a bedfile called QC1output
 
 After this, we check for individuals with excessively high or low heterozygosity, and individuals with discordant sex information, and write this information out as QC1checkhet and QC1checksex respectively. 
+
+The sexcheck essentially compares the X chromosome dosage to the reported sex. 
  
  ```bash
  ./plink --file path/to/inputfile --geno 0.1 --mind 0.05 --hwe 0.000001 --me 0.05 0.1 --make-bed --out QC1output
