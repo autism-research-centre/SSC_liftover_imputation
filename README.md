@@ -1,15 +1,15 @@
 ## SSC_liftover_imputation
-#Basic scripts used for imputing the SSC genotyped datasets
+# Basic scripts used for imputing the SSC genotyped datasets
 
 
 These are basic steps to conduct imputation in the SSC dataset. Note, this can be modified and used for any dataset. 
 
 In general, the steps are as follows:
 
-#1. Liftover to hg19 from hg18 (all SSC files are in hg18)
-#2. Quality control
-#3. Generation of genetic PCs and checking for and removing outliers against the HapMap dataset
-#4. Imputation (we will do this on the imputation servers).
+# 1. Liftover to hg19 from hg18 (all SSC files are in hg18)
+# 2. Quality control
+# 3. Generation of genetic PCs and checking for and removing outliers against the HapMap dataset
+# 4. Imputation (we will do this on the imputation servers).
 
 
 
@@ -19,7 +19,7 @@ In general, the steps are as follows:
 
 
 
-##Resources:
+## Resources:
 
 1. liftOver: https://genome.sph.umich.edu/wiki/LiftOver
 2. liftOverPlink wrapper: https://github.com/sritchie73/liftOverPlink
