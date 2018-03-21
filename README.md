@@ -167,22 +167,42 @@ We will recycle file names to save space.
 
 ./plink --bfile hapmap3_hg19_eurfoundersonly --bmerge SSC_flippedfile --make-bed --out HapMap3SSCfileforPC
 
-./plink --bfile Hapmap3_hg19_eurfoundersonly --exclude HapMap3SSCfileforPC-merge.missnp --make-bed --out Hapmap3_formerging
+./plink --bfile hapmap3_hg19_eurfoundersonly --exclude HapMap3SSCfileforPC-merge.missnp --make-bed --out Hapmap3_formerging
 
 ./plink --bfile SSC_flippedfile --exclude HapMap3SSCfileforPC-merge.missnp --make-bed --out SSC_flippedfileformerging
 
-./plink --bfile Hapmap3_formerging --bmerge SSCflippedfileformerging --makebed --out HapMap3SSCfileforPC
+./plink --bfile Hapmap3_formerging --bmerge SSC_flippedfileformerging --make_bed --out HapMap3SSCfileforPC
 
 ```
 
 
-./plink --bfile SSC_1Mv3_binary_QC2 --filter-founders --make-bed --out SSC_1Mv3_binary_QC2foundersonly
+The next step is to generate PCs. To do this, we need another round of quality control, prune SNPs, and then generate PCs.
 
-./plink --bfile SSC_1Mv1_binary_QC2 --filter-founders --make-bed --out SSC_1Mv1_binary_QC2foundersonly
+```bash
+./plink --bfile HapMap3SSCfileforPC --geno 0.1 --hwe 0.000001 --make-bed --out HapMap3SSCfileforPCQC1
 
-./plink --bfile merged --bmerge  SSC_1Mv1_binary_QC1 --out merged2
+./plink --bfile HapMap3SSCfileforPCQC1 --maf 0.05 --indep-pairwise 100 50 0.2 --out HapMap3SSCfileforPCQC1pruned 
 
-./plink --bfile merged2 --filter-founders --make-bed --out merged2founders 
+./plink --bfile HapMap3SSCfileforPCQC1 --exclude HapMap3SSCfileforPCQC1pruned.prune.out --pca --out SSC_pcaall
+```
+
+
+
+Phew! Now we get to plot the PCs and remove outliers. Nearly there...
+
+###Plot PCA and remove outliers###
+
+PCA was plotted using the eigenvec values in R. 
+Each individual was named according to their population group, and PCA (1st two were plotted in R using ggplot)
+
+qplot(V3, V4, colour = population, data = omnimerge3)
+
+Identifying population outliers:
+The mean (m)  and the standard deviation (sd) of the first two PCAs were calculated using just the CEU and the TSI population subgroups in hapmap3. Next, for all the SFARI participants, the Z score was calculated by:
+
+abs((Mx - m)/sd). 
+
+
 
 
 
