@@ -194,6 +194,7 @@ Now, let's import the PCs into R and calculate things.
 
 ```R
 library(data.table)
+library(plyr)
 pc = fread("SSC_pcaall.eigenvec")
 selectedRows <- pc[grep("NA", pc$V2), ] #all the hapmapsamples have FID with NA
 
@@ -209,31 +210,26 @@ pc$ZPC2 = (abs(pc$V4 - meanV2))/sdV2
 selectedRows2 <- pc[!grep("NA", pc$V2), ] #Now restrict it to the SSC samples
 PCOK = subset(selectedRows2, ZPC1 < 5 & ZPC2 < 5) #include only samples that are less than 5 SDs away from the mean
 
-PCOKparents = 
-keepfile
+count = count(PCOK$V1)
+setnames(count, 1, "V1")
+PCOK2 = merge(PCOK, count, by = "V1")
+PCOKparents = subset(PCOK, freq == "2")
+
+famfile = fread("QC2output.fam")
+keepfile = famfile[famfile$V1 %in% PCOKparents$V1,]
+write.table(keepfile, file = "keepfile.txt", row.names = F, col.names = F, quote = F)
 
 ```
 
+We've now got a list of individuals to keep in the SSC files for imputation in the keepfile. We can now include only these individuals and create a new bedfile for imputation. We then seperate it into the 22 autosomes and then create VCFs.
 
-###Plot PCA and remove outliers###
+```bash
+./plink --bfile QC2output.fam --keep keepfile.txt --make-bed --out SSCimputationfile 
 
-PCA was plotted using the eigenvec values in R. 
-Each individual was named according to their population group, and PCA (1st two were plotted in R using ggplot)
+for i in {1..22}; do ./plink --bfile ./SSC_1Mv3/SSCimputationfile --chr ${i} --recode-vcf --out ./SSC_1Mv3/SSC_1Mv3_chr${i}; done
 
-qplot(V3, V4, colour = population, data = omnimerge3)
-
-Identifying population outliers:
-The mean (m)  and the standard deviation (sd) of the first two PCAs were calculated using just the CEU and the TSI population subgroups in hapmap3. Next, for all the SFARI participants, the Z score was calculated by:
-
-abs((Mx - m)/sd). 
-
-
-
-
-
-
-
-
+```
+Et, viola! You are now done. Upload the files onto your favourite imputation servers and pray to the gods of the interenet that it works!
 
 ## Resources:
 
