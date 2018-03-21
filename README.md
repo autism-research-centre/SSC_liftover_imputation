@@ -103,6 +103,7 @@ Next, we remove the failed samples.
 ```
 
 # Step 3: Removing ancestry outliers
+## Step 3a: Downloading and converting the Hapmap3 files
 
 The next step is to retain only individuals who are primarily of European ancestry (CEU and TSI from HapMap 3). 
 
@@ -135,7 +136,13 @@ python2 liftOverPlink.py -m path/to/map/file -p path/to/ped/file -e path/to/lift
 
 ```
 
+Finally, we need to convert it to a binary bed file to merge it with the SSC files
 
+```bash
+./plink --file hapmap3_hg19_eur --make-bed --out hapmap3_hg19_eur
+```
+
+## Step 3b: Merging with the SSC files, running PCA, and removing ancestry outliers
 
 ./plink --bfile SSC_Omni2.5_binary_QC2 --filter-founders --make-bed --out SSC_Omni2.5_binary_QC2foundersonly
 
