@@ -97,9 +97,10 @@ Next, we remove the failed samples.
 
 ```bash
 
-./plink --bfile QC1output --remove failedsample1Mv3.txt --make-bed --out QC2output
+./plink --bfile QC1output --remove failedsample.txt --make-bed --out QC2output
 
 ```
+
 
 ./plink --bfile SSC_Omni2.5_binary_QC2 --filter-founders --make-bed --out SSC_Omni2.5_binary_QC2foundersonly
 
