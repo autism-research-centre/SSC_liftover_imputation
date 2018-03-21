@@ -90,7 +90,7 @@ het2 = hetoutlier[,c(1:2)]
 sex2 = sexproblem[,c(1:2)]
 failedsample = rbind(het2, sex2)
 
-write.table(failedsample, file = "failedsample1Mv3.txt", row.names = F, col.names = T, quote = F)
+write.table(failedsample, file = "failedsample.txt", row.names = F, col.names = T, quote = F)
 ```
 
 Next, we remove the failed samples.
