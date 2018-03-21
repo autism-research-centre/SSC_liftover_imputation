@@ -63,6 +63,10 @@ The sexcheck essentially compares the X chromosome dosage to the reported sex.
  ./plink --bfile QC1output --check-sex --out QC1checksex
  
 ```
+Note, sometimes liftover may throw in some odd chromosomes/snps. This will get Plink to give the following error message:
+" Invalid chromosome code '11_gl000202_random' on line 1563099 of .map"
+
+As far as I am aware there is no quick way around it. Read the map file in R. Check for invalid chromosomes (outside 1:22, X, Y), and exclude the SNPs in those using the --exclude command when creating the bfile. Alternatively, use the --allow-extra-chr command to ignore this in Plink. 
 
 The next step is to create a file with problematic individuals and remove it from subsequent analysis. This is done in R.
 
