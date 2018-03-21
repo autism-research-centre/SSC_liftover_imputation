@@ -190,6 +190,31 @@ The next step is to generate PCs. To do this, we need another round of quality c
 
 Phew! Now we get to plot the PCs and remove outliers. Nearly there...
 
+Now, let's import the PCs into R and calculate things.
+
+```R
+library(data.table)
+pc = fread("SSC_pcaall.eigenvec")
+selectedRows <- pc[grep("NA", pc$V2), ] #all the hapmapsamples have FID with NA
+
+#Calculate the mean and SD of PC1 and PC2 based on the hapmapsamples
+meanV1 = mean(selectedRows$V3)
+sdV1 = sd(selectedRows$V3)
+meanV2 = mean(selectedRows$V4)
+sdV2 = sd(selectedRows$V4)
+
+pc$ZPC1 = (abs(pc$V3 - meanV1))/sdV1
+pc$ZPC2 = (abs(pc$V4 - meanV2))/sdV2
+
+selectedRows2 <- pc[!grep("NA", pc$V2), ] #Now restrict it to the SSC samples
+PCOK = subset(selectedRows2, ZPC1 < 5 & ZPC2 < 5) #include only samples that are less than 5 SDs away from the mean
+
+PCOKparents = 
+keepfile
+
+```
+
+
 ###Plot PCA and remove outliers###
 
 PCA was plotted using the eigenvec values in R. 
