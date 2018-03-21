@@ -144,7 +144,37 @@ Finally, we need to convert it to a binary bed file to merge it with the SSC fil
 
 ## Step 3b: Merging with the SSC files, running PCA, and removing ancestry outliers
 
-./plink --bfile SSC_Omni2.5_binary_QC2 --filter-founders --make-bed --out SSC_Omni2.5_binary_QC2foundersonly
+To generate PCs ideally we need not closely individuals. Both the HapMap files and the SSC files are family based. So, we next create seperate files that has only founders.The filter-founders option excludes individuals who have atleast 1 parental ID. With this option, we are retaining only parents who we assume are not closely related. 
+
+```bash
+./plink --bfile hapmap3_hg19_eur --filter-founders --make-bed --out hapmap3_hg19_eurfoundersonly
+
+./plink --bfile QC2output --filter-founders --make-bed --out QC2outputfoundersonly
+
+```
+
+After this, merge the HapMap3 file with the SSC file. This will be need to be done in a few steps usually.
+The first merge command will produce a .missnp file. This is a list of SNPs that are either multiallelic or need to be flipped. 
+We will first try to flip them, and then merge again.
+This will additionally produce another list .missnp
+We will then exclude this from both the files, and then merge again. 
+We will recycle file names to save space. 
+
+```bash
+./plink --bfile hapmap3_hg19_eurfoundersonly --bmerge QC2outputfoundersonly --make-bed --out HapMap3SSCfileforPC
+
+./plink --bfile QC2outputfoundersonly --flip HapMap3SSCfileforPC-merge.missnp --make-bed --out SSC_flippedfile
+
+./plink --bfile hapmap3_hg19_eurfoundersonly --bmerge SSC_flippedfile --make-bed --out HapMap3SSCfileforPC
+
+./plink --bfile Hapmap3_hg19_eurfoundersonly --exclude HapMap3SSCfileforPC-merge.missnp --make-bed --out Hapmap3_formerging
+
+./plink --bfile SSC_flippedfile --exclude HapMap3SSCfileforPC-merge.missnp --make-bed --out SSC_flippedfileformerging
+
+./plink --bfile Hapmap3_formerging --bmerge SSCflippedfileformerging --makebed --out HapMap3SSCfileforPC
+
+```
+
 
 ./plink --bfile SSC_1Mv3_binary_QC2 --filter-founders --make-bed --out SSC_1Mv3_binary_QC2foundersonly
 
