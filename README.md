@@ -213,7 +213,7 @@ PCOK = subset(selectedRows2, ZPC1 < 5 & ZPC2 < 5) #include only samples that are
 count = count(PCOK$V1)
 setnames(count, 1, "V1")
 PCOK2 = merge(PCOK, count, by = "V1")
-PCOKparents = subset(PCOK, freq == "2")
+PCOKparents = subset(PCOK2, freq == "2")
 
 famfile = fread("QC2output.fam")
 keepfile = famfile[famfile$V1 %in% PCOKparents$V1,]
