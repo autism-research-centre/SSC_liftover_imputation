@@ -36,6 +36,7 @@ git clone https://github.com/sritchie73/liftOverPlink.git
 #run the programme
 python2 liftOverPlink.py -m path/to/map/file -p path/to/ped/file -e path/to/liftover -o outputname -c path/to/chainfile
 
+
 ```
 
  # Step 2: Quality control
@@ -100,6 +101,40 @@ Next, we remove the failed samples.
 ./plink --bfile QC1output --remove failedsample.txt --make-bed --out QC2output
 
 ```
+
+# Step 3: Removing ancestry outliers
+
+The next step is to retain only individuals who are primarily of European ancestry (CEU and TSI from HapMap 3). 
+
+There are a few things we need to do for this:
+
+
+We first need to download the hapmap3 files. This can be downloaded from here:
+ftp://ftp.ncbi.nlm.nih.gov/hapmap/phase_3/
+
+```bash
+
+wget ftp://ftp.ncbi.nlm.nih.gov/hapmap/phase_3/hapmap3_r1_b36_fwd.qc.poly.tar.bz2
+bunzip2 hapmap3_r1_b36_fwd.qc.poly.tar.bz2
+tar -xvf hapmap3_r1_b36_fwd.qc.poly.tar
+
+```
+This will create multiple files based on ancestry. For our current analyses, we need only the CEU and TSI files. We need to merge them using Plink. We use the --recode command to keep it in Ped/Map format as opposed to the default bed/bim/fam format as we need this in the next step for LiftOver.
+
+```bash
+
+./plink --file hapmap3_r1_b36_fwd.CEU.qc.poly.recode --merge hapmap3_r1_b36_fwd.TSI.qc.poly.recode --recode --out hapmap3_hg18_eur
+```
+
+The next step is to perform LiftOver on the merged file. The HapMap3 files are in NCBI build 36 (hg18). So we need to LiftOver to Hg19 for any subsequent analysis. 
+
+```bash
+python2 liftOverPlink.py -m path/to/map/file -p path/to/ped/file -e path/to/liftover -o outputname -c path/to/chainfile
+
+# python2 liftOverPlink.py -m ./hapmap3_hg18_eur.map -p ./hapmap3_hg18_eur.ped -e ./liftOver -o hapmap3_hg19_eur -c ./hg18ToHg19.over.chain
+
+```
+
 
 
 ./plink --bfile SSC_Omni2.5_binary_QC2 --filter-founders --make-bed --out SSC_Omni2.5_binary_QC2foundersonly
