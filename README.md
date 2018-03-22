@@ -221,12 +221,14 @@ write.table(keepfile, file = "keepfile.txt", row.names = F, col.names = F, quote
 
 ```
 
-We've now got a list of individuals to keep in the SSC files for imputation in the keepfile. We can now include only these individuals and create a new bedfile for imputation. We then seperate it into the 22 autosomes and then create VCFs.
+We've now got a list of individuals to keep in the SSC files for imputation in the keepfile. We can now include only these individuals and create a new bedfile for imputation. We then seperate it into the 22 autosomes and then create VCFs. Finally, we sort it and compress it.
 
 ```bash
 ./plink --bfile QC2output.fam --keep keepfile.txt --make-bed --out SSCimputationfile 
 
-for i in {1..22}; do ./plink --bfile ./SSC_1Mv3/SSCimputationfile --chr ${i} --recode-vcf --out ./SSC_1Mv3/SSC_1Mv3_chr${i}; done
+for i in {1..22}; do ./plink --bfile SSCimputationfile --chr ${i} --recode-vcf --out SSC_file_chr${i}; done
+
+for i in {1..22}; do vcf-sort SSC_file_chr${i}.vcf | bgzip -c > SSC_file_chr${i}.vcf.gz; done
 
 ```
 Et, viola! You are now done. Upload the files onto your favourite imputation servers and pray to the gods of the interenet that it works!
