@@ -236,18 +236,18 @@ unzip HRC-1000G-check-bim-v4.2.9.zip
 http://www.well.ox.ac.uk/~wrayner/tools/1000GP_Phase3_combined.legend.gz
 gunzip 1000GP_Phase3_combined.legend.gz
 
-
 ./plink --bfile SSCimputationfile --freq --out SSCimputationfilefreq
 
+perl HRC-1000G-check-bim.pl -b ./SSC_1Mv3/SSCimputationfile.bim -f SSCimputationfilefreq.frq -r 1000GP_Phase3_combined.legend -g -p EUR
 
+chmod +x Finalstep.sh
 
-```bash
-
-for i in {1..22}; do ./plink --bfile SSCimputationfile --chr ${i} --recode-vcf --out SSC_file_chr${i}; done
-
-for i in {1..22}; do vcf-sort SSC_file_chr${i}.vcf | bgzip -c > SSC_file_chr${i}.vcf.gz; done
+run Finalstep.sh
 
 ```
+
+
+
 Et, viola! You are now done. Upload the files onto your favourite imputation servers and pray to the gods of the interenet that it works!
 
 ## Resources:
