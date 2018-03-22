@@ -225,6 +225,23 @@ We've now got a list of individuals to keep in the SSC files for imputation in t
 
 ```bash
 ./plink --bfile QC2output.fam --keep keepfile.txt --make-bed --out SSCimputationfile 
+```
+
+So far so good. But we now need to check if the files are valid. LiftOver can be a bit problematic, and luckily, there is a solution.
+
+```bash
+http://www.well.ox.ac.uk/~wrayner/tools/HRC-1000G-check-bim-v4.2.9.zip
+unzip HRC-1000G-check-bim-v4.2.9.zip
+
+http://www.well.ox.ac.uk/~wrayner/tools/1000GP_Phase3_combined.legend.gz
+gunzip 1000GP_Phase3_combined.legend.gz
+
+
+./plink --bfile SSCimputationfile --freq --out SSCimputationfilefreq
+
+
+
+```bash
 
 for i in {1..22}; do ./plink --bfile SSCimputationfile --chr ${i} --recode-vcf --out SSC_file_chr${i}; done
 
