@@ -250,6 +250,47 @@ run Finalstep.sh
 
 Et, viola! You are now done. Upload the files onto your favourite imputation servers and pray to the gods of the interenet that it works!
 
+I used the Michigan Imputation Server. Imputation was conducted using 1000G Phase 3 V5. Phasing was done using Eagle v2.3. Population was restricted to EUR. The mode was Quality Control and imputation.
+
+## Post-imputation QC and data management
+
+Now, it's not all done from here, and there are a few additional steps. First, you need to unzip the files. This is password protected. 
+
+Next, once you have the VCFs, convert it into plink binary, and unzip the info file. It's best to unzip the info file and create a list of files to exclude before converting it to plink binary, as this way, we can reduce an extra step.
+
+```bash
+
+```
+
+Let's now do some QC. Here, we are removing SNPs with 0.5 < ALT_Freq < 0.95. This will ensure that all our SNPs have a minor allele freq > 0.05. We also want to remove poorly imputed SNPs. We do this by removing SNPs with Rsq < 0.6. Finally, we create a file to that can be passed on to the --extract command in Plink. 
+
+```R
+for (i in 1:22){
+  a = read.table(paste0("chr", i, ".info"), header = T)
+  a$Rsq = as.numeric(as.character(a$Rsq))
+  b = subset(a, Rsq > 0.6)
+  b = subset(b, ALT_Frq > 0.05 & ALT_Frq < 0.95)
+  write.table(b[,1], file = paste0("chr", i, "exclude.txt"), row.names = F, col.names = T, quote = F)
+}
+```
+
+Now we create the binary Plink file. This does 
+```bash
+
+for i in {1..22}; do ./plink --vcf ./Imputed/chr${i}.dose.vcf.gz --make-bed --out ./imputed_plinkfile/1Mv1_chr${i}  --extract ./Imputed/chr${i}exclude.txt --const-fid 0; done
+
+```
+
+Next, let's combine all the files, and recode the SNP IDs. 
+To recode the SNP IDs, you need to download the VCF file that matches your build (GRCh37), and then manipulate it to get the file you need to pass that onto plink. We will restrict it to only the common variants. 
+
+```bash
+wget ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b150_GRCh37p13/VCF/common_all_20170710.vcf.gz
+zgrep -v "^##" common_all_20170710.vcf.gz | cut -f1-3 > fileforrecoding.txt
+awk '{print $1":"$2"\t"$3}' < fileforrecoding.txt > plinkrecodingfile.txt
+```
+
+
 ## Resources:
 
 1. liftOver: https://genome.sph.umich.edu/wiki/LiftOver
