@@ -297,6 +297,8 @@ Finally, merge the files, update name, and do QC
 
 for i in {1..22}; do ./plink --bfile 1Mv1_chr${i} --exclude 1Mv1_merged-merge.missnp --make-bed --out 1Mv1_chr${i}_2; done
 
+./plink --bfile 1Mv1_chr22_2 --merge-list 1Mv1mergelist2.txt --make-bed -biallelic-only --out 1Mv1_merged
+
 ./plink --bfile 1Mv1_merged --maf 0.05 --update-name ~/SFARI/liftOverPlink/plinkrecodingfile.txt --hwe 0.000001 --geno 0.05 --mind 0.05 --make-bed --out 1Mv1_mergedQC
 
 ```
