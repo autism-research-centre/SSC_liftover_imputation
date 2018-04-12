@@ -293,6 +293,8 @@ awk '{print $1":"$2"\t"$3}' < fileforrecoding.txt > plinkrecodingfile.txt
 
 Finally, merge the files, update name, and do QC
 ```bash
+i in {1..22}; do ./plink --bfile ./imputed_plinkfile/1Mv1imputed_chr${i} --extract ./Imputed_1000G/chr${i}exclude.txt --make-bed --maf 0.05 --geno 0.05 --hwe 0.000001 --out ./imputed_plinkfile/1Mv1_chr${i}; done
+      
 ./plink --bfile 1Mv1_chr22 --merge-list 1Mv1mergelist.txt --make-bed -biallelic-only --out 1Mv1_merged
 
 for i in {1..22}; do ./plink --bfile 1Mv1_chr${i} --exclude 1Mv1_merged-merge.missnp --make-bed --out 1Mv1_chr${i}_2; done
