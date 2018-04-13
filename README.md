@@ -291,7 +291,7 @@ awk '{print $1":"$2"\t"$3}' < fileforrecoding.txt > plinkrecodingfile.txt
 ```
 
 
-Finally, merge the files, update name, and do QC
+Merge the files, update SNP name, and do QC
 ```bash
 i in {1..22}; do ./plink --bfile ./imputed_plinkfile/1Mv1imputed_chr${i} --extract ./Imputed_1000G/chr${i}exclude.txt --make-bed --maf 0.05 --geno 0.05 --hwe 0.000001 --out ./imputed_plinkfile/1Mv1_chr${i}; done
       
@@ -303,6 +303,40 @@ for i in {1..22}; do ./plink --bfile 1Mv1_chr${i} --exclude 1Mv1_merged-merge.mi
 
 ./plink --bfile 1Mv1_merged --maf 0.05 --update-name ~/SFARI/liftOverPlink/plinkrecodingfile.txt --hwe 0.000001 --geno 0.05 --mind 0.05 --make-bed --out 1Mv1_mergedQC
 
+```
+
+Finally, update the Fam file, as this gets messed up in the whole process. To do this, open the fam file of the imputed merged version, and the fam file of the non-imputed version in R.
+
+```R
+library(data.table)
+library(tidyr)
+setwd()
+
+fileimputed = fread("")
+filenonimputed = fread("")
+
+fileimputed = fileimputed %>% separate(V2, into = c('FID', 'IID'), sep = 6)
+setnames(filenonimputed, 2, "IID")
+
+merged = merge(fileimputed, filenonimputed, by = "IID")
+
+merged$oldIID = paste0(merged$FID, merged$IID)
+
+setnames(merged, "IID", "NewIID")
+setnames(merged, "V1.x", "oldFID")
+setnames(merged, "V1.y", "newFID")
+
+write.table(merged[,c("oldFID", "oldIID", "newFID", "NewIID")], file = "1Mv1updatenames.txt", row.names = F, col.names = F, quote = F)
+write.table(filenonimputed[,1:4], file = "1Mv1updateparents.txt", row.names = F, col.names = F, quote = F)
+write.table(filenonimputed[,c(1,2,5)], file = "1Mv1updatesex.txt", row.names = F, col.names = F, quote = F)
+write.table(filenonimputed[,c(1,2,6)], file = "1Mv1updatepheno.txt", row.names = F, col.names = F, quote = F)
+
+```
+
+```bash
+./plink --bfile 1Mv1_mergedQC --update-ids 1Mv1updatenames.txt --make-bed  --out 1Mv1_mergedQC2
+
+./plink --bfile 1Mv1_mergedQC2 --update-parents 1Mv1updateparents.txt --update-sex 1Mv1updatesex.txt --pheno 1Mv1updatepheno.txt --make-bed  --out 1Mv1_mergedQC2
 ```
 
 
