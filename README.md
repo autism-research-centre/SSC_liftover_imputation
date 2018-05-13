@@ -1,3 +1,5 @@
+
+## Author: Varun Warrier
 ## SSC_liftover_imputation
 # Basic scripts used for imputing the SSC genotyped datasets
 
